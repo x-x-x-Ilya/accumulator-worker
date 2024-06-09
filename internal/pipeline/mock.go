@@ -197,16 +197,16 @@ func (m *MocksliceGenerator) EXPECT() *MocksliceGeneratorMockRecorder {
 }
 
 // MakeRandomInt mocks base method.
-func (m *MocksliceGenerator) MakeRandomInt(length int) ([]int, error) {
+func (m *MocksliceGenerator) MakeRandomInt(length, maxValue, minValue int) ([]int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MakeRandomInt", length)
+	ret := m.ctrl.Call(m, "MakeRandomInt", length, maxValue, minValue)
 	ret0, _ := ret[0].([]int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // MakeRandomInt indicates an expected call of MakeRandomInt.
-func (mr *MocksliceGeneratorMockRecorder) MakeRandomInt(length any) *gomock.Call {
+func (mr *MocksliceGeneratorMockRecorder) MakeRandomInt(length, maxValue, minValue any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MakeRandomInt", reflect.TypeOf((*MocksliceGenerator)(nil).MakeRandomInt), length)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MakeRandomInt", reflect.TypeOf((*MocksliceGenerator)(nil).MakeRandomInt), length, maxValue, minValue)
 }

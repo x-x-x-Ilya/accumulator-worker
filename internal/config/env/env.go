@@ -10,7 +10,7 @@ import (
 )
 
 func readArrayGenerator() (arrayGenerator, error) {
-	arrayDelay, err := mustPositiveDuration("ARRAY_GENERATOR_DELAY")
+	generatorDelay, err := mustPositiveDuration("ARRAY_GENERATOR_DELAY")
 	if err != nil {
 		return arrayGenerator{}, fmt.Errorf("ARRAY_GENERATOR_DELAY error: %w", err)
 	}
@@ -20,9 +20,21 @@ func readArrayGenerator() (arrayGenerator, error) {
 		return arrayGenerator{}, fmt.Errorf("ARRAY_GENERATOR_LENGTH error: %w", err)
 	}
 
+	maxElemValue, err := shouldPositiveInt("ARRAY_GENERATOR_MAX_ELEM_VALUE", 10)
+	if err != nil {
+		return arrayGenerator{}, fmt.Errorf("ARRAY_GENERATOR_MAX_ELEM_VALUE error: %w", err)
+	}
+
+	minElemValue, err := shouldPositiveInt("ARRAY_GENERATOR_MIN_ELEM_VALUE", 1)
+	if err != nil {
+		return arrayGenerator{}, fmt.Errorf("ARRAY_GENERATOR_MIN_ELEM_VALUE error: %w", err)
+	}
+
 	return arrayGenerator{
-		generatorDelay: arrayDelay,
+		generatorDelay: generatorDelay,
 		arrayLength:    arrayLength,
+		maxElemValue:   maxElemValue,
+		minElemValue:   minElemValue,
 	}, nil
 }
 
@@ -60,6 +72,8 @@ type (
 	arrayGenerator struct {
 		generatorDelay time.Duration
 		arrayLength    int
+		maxElemValue   int
+		minElemValue   int
 	}
 
 	Config struct {
@@ -112,6 +126,14 @@ func (a *arrayGenerator) GenerateDelay() time.Duration {
 	return a.generatorDelay
 }
 
-func (a *arrayGenerator) ArrayLength() int {
+func (a *arrayGenerator) RandArrLen() int {
 	return a.arrayLength
+}
+
+func (a *arrayGenerator) RandArrMaxVal() int {
+	return a.maxElemValue
+}
+
+func (a *arrayGenerator) RandArrMinVal() int {
+	return a.minElemValue
 }

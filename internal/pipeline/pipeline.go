@@ -60,9 +60,21 @@ func New(
 	}, nil
 }
 
-func (p *Pipeline) validateExecInput(arrayLength int, generateDelay, printDelay time.Duration) error {
-	if arrayLength < 3 {
-		return fmt.Errorf("arrayLength must be 3 or greater: %w", errorspkg.ErrBadInput)
+func (p *Pipeline) validateExecInput(randArrLen, randArrMaxVal, randArrMinVal int, generateDelay, printDelay time.Duration) error {
+	if randArrMaxVal <= 0 {
+		return fmt.Errorf("randArrMaxVal must be positive: %w", errorspkg.ErrBadInput)
+	}
+
+	if randArrMinVal <= 0 {
+		return fmt.Errorf("randArrMinVal must be positive: %w", errorspkg.ErrBadInput)
+	}
+
+	if randArrMinVal > randArrMaxVal {
+		return fmt.Errorf("randArrMinVal must be lower than randArrMaxVal: %w", errorspkg.ErrBadInput)
+	}
+
+	if randArrLen < 3 {
+		return fmt.Errorf("randArrLen must be 3 or greater: %w", errorspkg.ErrBadInput)
 	}
 
 	if generateDelay <= 0 {
@@ -76,8 +88,8 @@ func (p *Pipeline) validateExecInput(arrayLength int, generateDelay, printDelay 
 	return nil
 }
 
-func (p *Pipeline) Exec(ctx context.Context, arrayLength int, generateDelay, printDelay time.Duration) error {
-	if err := p.validateExecInput(arrayLength, generateDelay, printDelay); err != nil {
+func (p *Pipeline) Exec(ctx context.Context, randArrLen, randArrMaxVal, randArrMinVal int, generateDelay, printDelay time.Duration) error {
+	if err := p.validateExecInput(randArrLen, randArrMaxVal, randArrMinVal, generateDelay, printDelay); err != nil {
 		return fmt.Errorf("validateExecInput failed: %w", err)
 	}
 
@@ -91,25 +103,25 @@ func (p *Pipeline) Exec(ctx context.Context, arrayLength int, generateDelay, pri
 	group, ctx := errgroup.WithContext(ctx)
 
 	var (
-		randomArrChan        = make(chan []int, 1)
-		threeMaxElementsChan = make(chan []int, 3)
+		randArrCh          = make(chan []int, 1)
+		threeMaxElementsCh = make(chan []int, 3)
 	)
 
 	group.Go(
 		func() error {
-			return p.generatorWorker(ctx, generateDelay, arrayLength, randomArrChan)
+			return p.generatorWorker(ctx, generateDelay, randArrLen, randArrMaxVal, randArrMinVal, randArrCh)
 		},
 	)
 
 	group.Go(
 		func() error {
-			return p.processorWorker(ctx, randomArrChan, threeMaxElementsChan)
+			return p.processorWorker(ctx, randArrCh, threeMaxElementsCh)
 		},
 	)
 
 	group.Go(
 		func() error {
-			return p.accumulatorWorker(ctx, threeMaxElementsChan)
+			return p.accumulatorWorker(ctx, threeMaxElementsCh)
 		},
 	)
 
@@ -134,19 +146,19 @@ func (p *Pipeline) Exec(ctx context.Context, arrayLength int, generateDelay, pri
 	return nil
 }
 
-func (p *Pipeline) generatorWorker(ctx context.Context, generateDelay time.Duration, arrayLength int, outputChan chan []int) error {
+func (p *Pipeline) generatorWorker(ctx context.Context, generateDelay time.Duration, randArrLen, randArrMaxVal, randArrMinVal int, outputCh chan []int) error {
 	generateTicker := time.NewTicker(generateDelay)
 
 	for {
 		select {
 		case <-generateTicker.C:
-			randomArr, err := p.sliceGenerator.MakeRandomInt(arrayLength)
+			randomArr, err := p.sliceGenerator.MakeRandomInt(randArrLen, randArrMaxVal, randArrMinVal)
 			if err != nil {
 				generateTicker.Stop()
 				return fmt.Errorf("generate random slice generator failed: %w", err)
 			}
 
-			if err := helpers.WriteToChan(ctx, randomArr, outputChan); err != nil {
+			if err := helpers.WriteToChan(ctx, randomArr, outputCh); err != nil {
 				generateTicker.Stop()
 				return fmt.Errorf("error pushing random array: %w", err)
 			}

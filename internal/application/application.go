@@ -24,7 +24,7 @@ func Start(ctx context.Context, configPath string) error {
 		return fmt.Errorf("failed to read config: %w", err)
 	}
 
-	group, groupCtx := errgroup.WithContext(ctx)
+	group, gCtx := errgroup.WithContext(ctx)
 
 	publisher := publisher.New()
 
@@ -48,7 +48,7 @@ func Start(ctx context.Context, configPath string) error {
 	}
 
 	group.Go(func() error {
-		err := pipelineInstance.Exec(groupCtx, cfg.ArrayLength(), cfg.GenerateDelay(), cfg.PrintDelay())
+		err := pipelineInstance.Exec(gCtx, cfg.RandArrLen(), cfg.RandArrMaxVal(), cfg.RandArrMinVal(), cfg.GenerateDelay(), cfg.PrintDelay())
 		if err != nil {
 			return fmt.Errorf("failed to execute pipeline: %w", err)
 		}
@@ -57,7 +57,7 @@ func Start(ctx context.Context, configPath string) error {
 	})
 
 	group.Go(func() error {
-		err := helpers.ListenSystemSignals(groupCtx)
+		err := helpers.ListenSystemSignals(gCtx)
 		if err != nil {
 			return fmt.Errorf("system signal received: %w", err)
 		}

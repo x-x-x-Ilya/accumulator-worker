@@ -67,10 +67,10 @@ func TestExec(t *testing.T) {
 			piplineSvc, err := pipeline.New(accumulator, worker, publisher, mockSliceGenerator, processor)
 			require.NoError(t, err)
 
-			mockSliceGenerator.EXPECT().MakeRandomInt(10).Return(testCases[i].generatedArr, nil).MaxTimes(5)
+			mockSliceGenerator.EXPECT().MakeRandomInt(10, 10, 1).Return(testCases[i].generatedArr, nil).MaxTimes(5)
 
 			go func() {
-				err = piplineSvc.Exec(ctx, 10, time.Second, time.Second-time.Second/10)
+				err = piplineSvc.Exec(ctx, 10, 10, 1, time.Second, time.Second-time.Second/10)
 			}()
 
 			time.Sleep(time.Second * 2)
@@ -103,7 +103,7 @@ func TestExecMuLock(t *testing.T) {
 		piplineSvc, err := pipeline.New(accumulator, worker, publisher, mockSliceGenerator, processor)
 		require.NoError(t, err)
 
-		mockSliceGenerator.EXPECT().MakeRandomInt(10).Return([]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, nil).MaxTimes(5)
+		mockSliceGenerator.EXPECT().MakeRandomInt(10, 10, 1).Return([]int{1, 1, 2, 3, 4, 5, 6, 7, 8, 9}, nil).MaxTimes(5)
 
 		childCtx, cancelChild := context.WithCancel(ctx)
 		group, _ := errgroup.WithContext(childCtx)
@@ -112,7 +112,7 @@ func TestExecMuLock(t *testing.T) {
 
 		group.Go(
 			func() error {
-				err1 = piplineSvc.Exec(childCtx, 10, time.Second, time.Second-time.Second/10)
+				err1 = piplineSvc.Exec(childCtx, 10, 10, 1, time.Second, time.Second-time.Second/10)
 
 				return err1
 			})
@@ -122,7 +122,7 @@ func TestExecMuLock(t *testing.T) {
 		var err2 error
 		group.Go(
 			func() error {
-				err2 = piplineSvc.Exec(childCtx, 10, time.Second, time.Second-time.Second/10)
+				err2 = piplineSvc.Exec(childCtx, 10, 10, 1, time.Second, time.Second-time.Second/10)
 
 				return err2
 			})
@@ -163,11 +163,11 @@ func TestExecMuUnlock(t *testing.T) {
 		piplineSvc, err := pipeline.New(accumulator, worker, publisher, mockSliceGenerator, processor)
 		require.NoError(t, err)
 
-		mockSliceGenerator.EXPECT().MakeRandomInt(10).Return([]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, nil).MaxTimes(5)
+		mockSliceGenerator.EXPECT().MakeRandomInt(10, 10, 1).Return([]int{1, 1, 2, 3, 4, 5, 6, 7, 8, 9}, nil).MaxTimes(5)
 
 		group.Go(
 			func() error {
-				return piplineSvc.Exec(childCtx, 10, time.Second, time.Second-time.Second/10)
+				return piplineSvc.Exec(childCtx, 10, 10, 1, time.Second, time.Second-time.Second/10)
 			})
 
 		time.Sleep(time.Second * 1)
@@ -180,7 +180,7 @@ func TestExecMuUnlock(t *testing.T) {
 
 		group.Go(
 			func() error {
-				return piplineSvc.Exec(childCtx2, 10, time.Second, time.Second-time.Second/10)
+				return piplineSvc.Exec(childCtx2, 10, 10, 1, time.Second, time.Second-time.Second/10)
 			})
 
 		time.Sleep(time.Second * 1)

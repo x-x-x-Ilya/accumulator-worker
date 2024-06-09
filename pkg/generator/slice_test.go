@@ -33,7 +33,7 @@ func TestGenerate(t *testing.T) {
 
 	for i := range testCases {
 		t.Run(testCases[i].name, func(t *testing.T) {
-			generatedArr, err := sliceGenerator.MakeRandomInt(testCases[i].input)
+			generatedArr, err := sliceGenerator.MakeRandomInt(testCases[i].input, 100, 1)
 
 			if testCases[i].isErrorExpected {
 				require.Error(t, err)

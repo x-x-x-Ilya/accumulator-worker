@@ -22,5 +22,5 @@ type processor interface {
 }
 
 type sliceGenerator interface {
-	MakeRandomInt(length int) ([]int, error)
+	MakeRandomInt(length, maxValue, minValue int) ([]int, error)
 }
