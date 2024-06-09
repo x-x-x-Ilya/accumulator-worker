@@ -1,6 +1,6 @@
-# accumulator pipline worker
+# Accumulator pipline worker
 
-# Technical description EN
+## Technical description EN
 Need to implement the data processing model with a pipeline behavior that consists from these parameters:
 1. Give to the input data packages. Data package = slice with len = 10 that consists of random integer elements. 
 New packages should be created and sent to the pipeline every N ms (N sets as an environment variable).
@@ -15,7 +15,7 @@ processing: {9, 7, 8}
 accumulator: 9+7+8=24
 publisher: 24
 
-# Technical description RU
+## Technical description RU
 
 Реализовать модель обработки данных в виде пайплайна, состоящего из следующих этапов
 1. Подача на вход пакетов данных. Пакет данных = слайс случайных целых чисел из 10 элементов. 
