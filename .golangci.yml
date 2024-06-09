@@ -1,0 +1,65 @@
+output:
+  sort-results: true
+
+linters:
+  enable-all: true
+  disable:
+    - depguard
+    - lll
+    - gosec
+    - golint
+    - interfacer
+    - funlen
+    - gocognit
+    - gomnd
+    - godox
+    - exhaustivestruct
+    - exhaustive
+    - ireturn
+    - containedctx
+    - stylecheck
+    - nilnil
+    - revive
+    - tagliatelle
+    - ifshort
+    - maligned
+    - scopelint
+    - exhaustruct
+    - varcheck
+    - deadcode
+    - structcheck
+    - nosnakecase
+    - wsl
+    - tagalign
+    - perfsprint
+    - paralleltest
+    - forbidigo
+    - testpackage
+    - nlreturn
+
+issues:
+  exclude-rules:
+    - path: '.+_test\.go'
+      linters:
+        - goconst
+        - tenv
+        - wrapcheck
+
+linters-settings:
+  cyclop:
+    skip-tests: true
+    max-complexity: 10
+  goimports:
+    local-prefixes: github.com/x-x-x-Ilya/accumulator-worker
+  gci:
+    sections:
+      [
+        standard,
+        default,
+        prefix(github.com/x-x-x-Ilya/accumulator-worker),
+      ]
+  varnamelen:
+    ignore-names:
+      [ i, j, ch, wg ]
+  nlreturn:
+    block-size: 2
